@@ -25,13 +25,11 @@ import dokumentasiRoute from "./routes/dokumentasiRoute";
 dotenv.config();
 
 const app = express();
-app.use(express.json());
-app.use(aboutUsRoutes);
-app.set("trust proxy", true);
 
+// Konfigurasi CORS agar hanya mengizinkan akses dari localhost:3000 dan localhost:8000
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://www.google.com"],
+    origin: ["http://localhost:3000", "http://localhost:8000"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
@@ -45,29 +43,21 @@ app.use(
   })
 );
 
+app.use(express.json());
+app.use(bodyParser.json());
+
+// Middleware untuk menambahkan header Cross-Origin-Resource-Policy
 app.use((req, res, next) => {
   res.header("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 });
 
-app.use(express.json());
-app.use(bodyParser.json());
-
-// Add error logging middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error("Error details:", err);
-  res.status(500).json({
-    error: "Internal Server Error",
-    message: err.message || "Something went wrong",
-  });
-});
-
-// Routes API
+// Rute API
 app.get("/about-us", (req, res) => {
   res.json([{ id: 1, contentType: "text", content: "About Us content" }]);
 });
 
-// Menggunakan rute admin
+// Menggunakan rute admin dan lainnya
 app.use(
   "/api",
   adminRoutes,
@@ -88,13 +78,16 @@ app.use(
   developmentAppLogoRoute,
   securityMitraLogoRoute,
   dokumentasiRoute
-); // Pastikan rute /api terhubung ke adminRoutes/aboutUsRoutes
+);
 
-// Error handler untuk menangani kesalahan yang tidak tertangani
+// Middleware error logging
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error("Error received:", err);
+  console.error("Error details:", err);
   console.error("Request details:", req.body);
-  res.status(500).send("Something went wrong!");
+  res.status(500).json({
+    error: "Internal Server Error",
+    message: err.message || "Something went wrong",
+  });
 });
 
 export default app;
