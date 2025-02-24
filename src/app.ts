@@ -29,7 +29,7 @@ const app = express();
 // Konfigurasi CORS agar hanya mengizinkan akses dari localhost:3000 dan localhost:8000
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:8000"],
+    origin: ["http://localhost:3000", "http://localhost:8000" , "http://192.168.84.165:8000"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
